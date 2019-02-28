@@ -7,6 +7,7 @@ class VaultAnalyzer(object):
     """Analyzes vault files."""
 
     def analyze(self, file_name):
+
         with open(file_name) as vault_file:
             data = json.load(vault_file)
             # pprint(data['dwellers'])
@@ -17,6 +18,7 @@ class VaultAnalyzer(object):
             dweller_intelligences = []
             dweller_agilities = []
             dweller_lucks = []
+            lvl50_dwellers = []
             for i in data['dwellers']['dwellers']:
                 dweller_strengths.append(i['stats']['stats'][1]['value'])
                 dweller_perceptions.append((i['stats']['stats'][2]['value']))
@@ -25,6 +27,8 @@ class VaultAnalyzer(object):
                 dweller_intelligences.append((i['stats']['stats'][5]['value']))
                 dweller_agilities.append((i['stats']['stats'][6]['value']))
                 dweller_lucks.append((i['stats']['stats'][7]['value']))
+                if i['health']['lastLevelUpdated'] is 50:
+                    lvl50_dwellers.append(i)
             print("#################### DWELLER MEAN SPECIALS ####################")
             print(f"Mean dweller strength: {mean(dweller_strengths)}")
             print(f"Mean dweller perception: {mean(dweller_perceptions)}")
@@ -52,7 +56,15 @@ class VaultAnalyzer(object):
             print(f"Mode dweller intelligence: {bincount(dweller_intelligences).argmax()}")
             print(f"Mode dweller agility: {bincount(dweller_agilities).argmax()}")
             print(f"Mode dweller luck: {bincount(dweller_lucks).argmax()}")
-
+            # -----------------------------------------------------------------
+            print("################## LEVEL 50 DWELLERS & HEALTH ##################")
+            print("10E -> 472.5")
+            print("13E -> 546")
+            print("14E -> 570.5")
+            print("15E -> 595")
+            print("17E -> 644")
+            for i in lvl50_dwellers:
+                print(f"Dweller: {i['name']} Health: {i['health']['healthValue']}")
 
 if __name__ == '__main__':
     fire.Fire(VaultAnalyzer)
