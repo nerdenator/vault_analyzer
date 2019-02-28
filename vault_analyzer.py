@@ -64,7 +64,16 @@ class VaultAnalyzer(object):
             print("15E -> 595")
             print("17E -> 644")
             for i in lvl50_dwellers:
-                print(f"Dweller: {i['name']} Health: {i['health']['healthValue']}")
+                print(f"Dweller: {i['name']} {i['lastName']}\
+                \n\tMaxHealth: {i['health']['maxHealth']}\
+                \n\tStrength: {i['stats']['stats'][1]['value']}\
+                \n\tPerception: {i['stats']['stats'][2]['value']}\
+                \n\tEndurance: {i['stats']['stats'][3]['value']}\
+                \n\tCharisma: {i['stats']['stats'][4]['value']}\
+                \n\tIntelligence: {i['stats']['stats'][5]['value']}\
+                \n\tAgility: {i['stats']['stats'][6]['value']}\
+                \n\tLuck: {i['stats']['stats'][7]['value']}\
+                ")
 
 if __name__ == '__main__':
     fire.Fire(VaultAnalyzer)
