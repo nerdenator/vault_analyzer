@@ -1,13 +1,28 @@
+from __future__ import print_function
 import fire
 import json
 from numpy import mean, median, bincount, argmax
+
+# for d e c r y p t i o n
+# https://github.com/BlackthornYugen/FSCrypt/blob/master/FSCrypt.py
+# ^ used with permission
+
+from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Cipher import AES
+from base64 import decodestring, encodestring
+from sys import stdin, stdout
 
 
 class VaultAnalyzer(object):
     """Analyzes vault files."""
 
-    def analyze(self, file_name):
+    @staticmethod
+    def decrypt(file_name):
+        # decryption
+        INITIALIZATION_VECTOR = b'tu89geji340t89u2'
+        PASSWORD = b'UGxheWVy'
 
+    def analyze(self, file_name):
         with open(file_name) as vault_file:
             data = json.load(vault_file)
             # pprint(data['dwellers'])
@@ -19,6 +34,8 @@ class VaultAnalyzer(object):
             dweller_agilities = []
             dweller_lucks = []
             lvl50_dwellers = []
+            lvl50_15e_dwellers = []
+            lvl50_lowh_dwellers = []
             for i in data['dwellers']['dwellers']:
                 dweller_strengths.append(i['stats']['stats'][1]['value'])
                 dweller_perceptions.append((i['stats']['stats'][2]['value']))
@@ -29,6 +46,11 @@ class VaultAnalyzer(object):
                 dweller_lucks.append((i['stats']['stats'][7]['value']))
                 if i['health']['lastLevelUpdated'] is 50:
                     lvl50_dwellers.append(i)
+                    if i['health']['maxHealth'] >= 595:
+                        lvl50_15e_dwellers.append(i)
+                    if i['health']['maxHealth'] < 472.5:
+                        lvl50_lowh_dwellers.append(i)
+
             print("#################### DWELLER MEAN SPECIALS ####################")
             print(f"Mean dweller strength: {mean(dweller_strengths)}")
             print(f"Mean dweller perception: {mean(dweller_perceptions)}")
@@ -63,17 +85,28 @@ class VaultAnalyzer(object):
             print("14E -> 570.5")
             print("15E -> 595")
             print("17E -> 644")
-            for i in lvl50_dwellers:
-                print(f"Dweller: {i['name']} {i['lastName']}\
-                \n\tMaxHealth: {i['health']['maxHealth']}\
-                \n\tStrength: {i['stats']['stats'][1]['value']}\
-                \n\tPerception: {i['stats']['stats'][2]['value']}\
-                \n\tEndurance: {i['stats']['stats'][3]['value']}\
-                \n\tCharisma: {i['stats']['stats'][4]['value']}\
-                \n\tIntelligence: {i['stats']['stats'][5]['value']}\
-                \n\tAgility: {i['stats']['stats'][6]['value']}\
-                \n\tLuck: {i['stats']['stats'][7]['value']}\
-                ")
+            self.print_dweller_stats(list_obj=lvl50_dwellers)
+            self.print_dweller_stats(title="Over 15E Health:", list_obj=lvl50_15e_dwellers)
+            self.print_dweller_stats(title='HP below 472.5:', list_obj=lvl50_lowh_dwellers)
+
+    @staticmethod
+    def print_dweller_stats(list_obj, title=None):
+        if title:
+            print(title)
+
+        print(f"Total dwellers: {len(list_obj)}")
+        for i in list_obj:
+            print(f"Dweller: {i['name']} {i['lastName']}\
+                            \n\tMaxHealth: {i['health']['maxHealth']}\
+                            \n\tStrength: {i['stats']['stats'][1]['value']}\
+                            \n\tPerception: {i['stats']['stats'][2]['value']}\
+                            \n\tEndurance: {i['stats']['stats'][3]['value']}\
+                            \n\tCharisma: {i['stats']['stats'][4]['value']}\
+                            \n\tIntelligence: {i['stats']['stats'][5]['value']}\
+                            \n\tAgility: {i['stats']['stats'][6]['value']}\
+                            \n\tLuck: {i['stats']['stats'][7]['value']}\
+                            ")
+
 
 if __name__ == '__main__':
     fire.Fire(VaultAnalyzer)
